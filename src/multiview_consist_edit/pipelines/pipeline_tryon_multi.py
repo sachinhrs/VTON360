@@ -39,7 +39,8 @@ from models.hack_poseguider import Hack_PoseGuider as PoseGuider
 from models.ReferenceNet import ReferenceNet
 from models.ReferenceNet_attention_multi_fp16 import ReferenceNetAttention
 from models.ReferenceEncoder import ReferenceEncoder
-from data.dataset import TikTok, collate_fn, UBC_Fashion
+#from data.dataset import TikTok, collate_fn, UBC_Fashion
+from data.dataset import collate_fn
 from utils import camera_para_embed, calculate_weight_matrix, register_mv_attn, update_mv_attn
 from einops import rearrange, repeat
 
