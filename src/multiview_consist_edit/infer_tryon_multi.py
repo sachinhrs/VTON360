@@ -25,8 +25,8 @@ from data.Thuman2_multi import Thuman2_Dataset, collate_fn
 # from data.Thuman2_multi_ps2 import Thuman2_Dataset, collate_fn
 from data.MVHumanNet_multi import MVHumanNet_Dataset
 from models.hack_unet2d import Hack_UNet2DConditionModel as UNet2DConditionModel
-
-config = OmegaConf.load('config/infer_tryon_multi.yaml')
+#config = OmegaConf.load('config/infer_tryon_multi.yaml')
+config = OmegaConf.load('VTON360/src/multiview_consist_edit/config/infer_tryon_multi.yaml')
 
 # seed 
 seed = config.seed
