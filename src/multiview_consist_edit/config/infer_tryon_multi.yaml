@@ -14,8 +14,11 @@ pretrained_referencenet_path: '/GPUFS/sysu_gbli2_1/hzj/animate/checkpoints/mvhum
 
 out_dir: 'image_output_tryon_mvhumannet'
 
-batch_size: 2
-dataloader_num_workers: 4
+# Reduce batch size to 1
+batch_size: 1 
+#batch_size: 2
+#dataloader_num_workers: 4
+dataloader_num_workers: 2  # Reduced from 4
 guidance_scale: 2  # thuman:3 mvhumannet:2
 
 
@@ -33,7 +36,9 @@ infer_data:
   # dataroot: "/GPUFS/sysu_gbli2_1/hzj/render_data"
   dataroot: "/GPUFS/sysu_gbli2_1/hzj/mvhumannet/"
   # sample_size:  [512,384] # for 40G 256
-  sample_size:  [768,576]
+  # Reduce resolution to standard SD size (or smaller)
+  sample_size: [512, 384]  # 768x576 is too large for T4 with multi-view
+  #sample_size:  [768,576]
   clip_model_path: '/GPUFS/sysu_gbli2_1/hzj/pretrained_models/clip-vit-base-patch32'
   is_train: false
   mode: 'pair'
