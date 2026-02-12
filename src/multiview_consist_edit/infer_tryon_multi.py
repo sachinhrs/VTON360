@@ -75,7 +75,7 @@ pose_guider.eval()
 scheduler = DDIMScheduler.from_pretrained(config.model_path, subfolder='scheduler')
 
 pipe = TryOnPipeline(pose_guider=pose_guider, referencenet=referencenet, vae=vae, unet=unet, scheduler=scheduler)
-pipe.enable_xformers_memory_efficient_attention()
+#pipe.enable_xformers_memory_efficient_attention()
 # pipe._execution_device = torch.device("cuda")
 # pipe.to("cuda")
 
