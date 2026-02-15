@@ -2,7 +2,8 @@
 
 set -exu
 exp_dir="output"
-cam_path="demo_data/campath.json"
+#cam_path="demo_data/campath.json"
+cam_path="VTON360/src/demo_data/campath.json"
 
 # 1. reconstruction with 3DGS.
 ns-train splatfactox \
