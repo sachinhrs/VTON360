@@ -3,7 +3,7 @@
 set -exu
 exp_dir="output"
 #cam_path="demo_data/campath.json"
-cam_path="VTON360/src/demo_data/campath.json"
+cam_path="demo_data/campath.json"
 
 # 1. reconstruction with 3DGS.
 ns-train splatfactox \
@@ -14,7 +14,7 @@ ns-train splatfactox \
     --pipeline.model.max-opacity-loss-scale 2.0 \
     --pipeline.model.background_color white \
     --viewer.quit-on-train-completion True \
-    nerfstudio-data --data demo_data/0024_00208 \
+    nerfstudio-data --data demo_data/splatfactox_demo_data \
 
 # use the newest checkpoint
 ckpt_dir=$(ls ${exp_dir}/test/splatfactox | sort -r | head -n 1)
