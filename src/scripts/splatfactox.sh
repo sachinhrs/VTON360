@@ -7,10 +7,6 @@ cam_path="demo_data/campath.json"
 
 # 1. reconstruction with 3DGS.
 ns-train splatfactox \
-
-
-
-ns-train splatfactox \
     --output-dir ${exp_dir} \
     --experiment-name test \
     --max-num-iterations 10000 \
