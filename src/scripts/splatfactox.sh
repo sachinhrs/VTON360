@@ -7,14 +7,25 @@ cam_path="demo_data/campath.json"
 
 # 1. reconstruction with 3DGS.
 ns-train splatfactox \
+
+
+
+ns-train splatfactox \
     --output-dir ${exp_dir} \
     --experiment-name test \
-    --max-num-iterations 20000 \
-    --pipeline.model.cull-alpha-thresh 0.005 \
+    -max-num-iterations 10000 \
+    --pipeline.model.max-num-gaussians 120000 \
+    --pipeline.model.cull-alpha-thresh 0.01 \
+    --pipeline.datamanager.train-num-rays-per-batch 4096 \
+    --viewer.enable False
     --pipeline.model.max-opacity-loss-scale 2.0 \
     --pipeline.model.background_color white \
     --viewer.quit-on-train-completion True \
     nerfstudio-data --data demo_data/splatfactox_demo_data \
+
+
+#--max-num-iterations 20000 \
+#--pipeline.model.cull-alpha-thresh 0.005 \
 
 # use the newest checkpoint
 ckpt_dir=$(ls ${exp_dir}/test/splatfactox | sort -r | head -n 1)
