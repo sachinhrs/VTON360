@@ -12,7 +12,6 @@ ns-train splatfactox \
   --experiment-name test \
   --max-num-iterations 10000 \
   --pipeline.model.cull-alpha-thresh 0.01 \
-  --viewer.enable False \
   nerfstudio-data --data demo_data/splatfactox_demo_data \
 
 #--max-num-iterations 20000 \
