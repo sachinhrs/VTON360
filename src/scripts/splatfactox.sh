@@ -13,11 +13,8 @@ ns-train splatfactox \
 ns-train splatfactox \
     --output-dir ${exp_dir} \
     --experiment-name test \
-    -max-num-iterations 10000 \
-    --pipeline.model.max-num-gaussians 120000 \
-    --pipeline.model.cull-alpha-thresh 0.01 \
-    --pipeline.datamanager.train-num-rays-per-batch 4096 \
-    --viewer.enable False
+    --max-num-iterations 10000 \
+    --pipeline.model.cull-alpha-thresh 0.005 \
     --pipeline.model.max-opacity-loss-scale 2.0 \
     --pipeline.model.background_color white \
     --viewer.quit-on-train-completion True \
