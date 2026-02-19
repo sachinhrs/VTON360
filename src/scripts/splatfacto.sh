@@ -9,7 +9,10 @@ ns-train splatfacto \
   --vis tensorboard \
   --pipeline.model.cull-alpha-thresh 0.03 \
   --pipeline.datamanager.camera-res-scale-factor 0.33 \
+  --pipeline.datamanager.cache-images cpu \
+  --pipeline.datamanager.max-thread-workers 1 \
   nerfstudio-data --data demo_data/splatfactox_demo_data
+
 
 # 2. Update checkpoint path (folder name will now be 'splatfacto')
 ckpt_dir=$(ls output/test/splatfacto | sort -r | head -n 1) 
