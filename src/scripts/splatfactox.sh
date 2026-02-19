@@ -15,8 +15,8 @@ ns-train splatfactox \
     --pipeline.model.cull-alpha-thresh 0.005 \
     --pipeline.model.max-opacity-loss-scale 2.0 \
     --pipeline.model.background_color white \
-#    --viewer.quit-on-train-completion True \
     nerfstudio-data --data demo_data/splatfactox_demo_data
+    
 #--max-num-iterations 20000 \
 #--pipeline.model.cull-alpha-thresh 0.005 \
 
