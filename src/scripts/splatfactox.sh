@@ -8,14 +8,15 @@ cam_path="demo_data/campath.json"
 # 1. reconstruction with 3DGS.
 
 ns-train splatfactox \
-  --output-dir ${exp_dir} \
-  --experiment-name test \
-  --max-num-iterations 7000 \
-  --vis tensorboard \
-  --pipeline.model.cull-alpha-thresh 0.03 \
-  --pipeline.datamanager.camera-res-scale-factor 0.33 \
-  nerfstudio-data --data demo_data/splatfactox_demo_data
-
+    --output-dir ${exp_dir} \
+    --experiment-name test \
+    --max-num-iterations 20000 \
+    --vis tensorboard \
+    --pipeline.model.cull-alpha-thresh 0.005 \
+    --pipeline.model.max-opacity-loss-scale 2.0 \
+    --pipeline.model.background_color white \
+#    --viewer.quit-on-train-completion True \
+    nerfstudio-data --data demo_data/splatfactox_demo_data
 #--max-num-iterations 20000 \
 #--pipeline.model.cull-alpha-thresh 0.005 \
 
