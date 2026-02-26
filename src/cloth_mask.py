@@ -29,4 +29,4 @@ def extract_garment(image_path, output_path, labels=[4, 5, 6, 7]):
     print(f"Saved to {output_path}")
 
 # Usage
-extract_garment("input.jpg", "garment_out.jpg")
+extract_garment("input.jpg", "garment_out.jpg", labels=[4])
