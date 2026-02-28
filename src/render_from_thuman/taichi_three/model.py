@@ -68,6 +68,7 @@ class Model(AutoInit):
         self.vt = None
         self.vn = None
         self.tex = None
+        self.has_tex = False
         self.type = ti.field(dtype=ti.int32, shape=())
         self.reverse = False
         if obj is not None:
@@ -105,6 +106,7 @@ class Model(AutoInit):
             self.vn = ti.Vector.field(3, ti.f32, vn_n)
         if tex_n is not None:
             self.tex = ti.Vector.field(3, ti.f32, tex_n)
+            self.has_tex = True
         if col_n is not None:
             self.vc = ti.Vector.field(3, ti.f32, col_n)
 
@@ -137,7 +139,7 @@ class Model(AutoInit):
 
     @ti.func
     def texSample(self, coor):
-        if ti.static(self.tex is not None):
+        if ti.static(self.has_tex):
             return ts.bilerp(self.tex, coor * ts.vec(*self.tex.shape))
         else:
             return 1
@@ -155,6 +157,7 @@ class StaticModel(AutoInit):
         self.vt = None
         self.vn = None
         self.tex = None
+        self.has_tex = False
         # 0 origin 1 pure color 2 shader color
         self.type = ti.field(dtype=ti.int32, shape=())
         self.f_n = ti.field(dtype=ti.int32, shape=())
@@ -198,6 +201,7 @@ class StaticModel(AutoInit):
             self.vn = ti.Vector.field(3, ti.f32, N)
         if not (tex_n is None):
             self.tex = ti.Vector.field(3, ti.f32, tex_n)
+            self.has_tex = True
         if col_n is not None:
             self.vc = ti.Vector.field(3, ti.f32, N)
 
@@ -245,7 +249,7 @@ class StaticModel(AutoInit):
 
     @ti.func
     def texSample(self, coor):
-        if ti.static(self.tex is not None):
+        if ti.static(self.has_tex):
             return bilerp(self.tex, coor * ts.vec2(*self.tex.shape))
         else:
             return 1
