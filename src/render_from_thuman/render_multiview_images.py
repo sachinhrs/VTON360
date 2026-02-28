@@ -180,8 +180,8 @@ def render_data(renderer, data_path, phase, data_id, save_path, cam_nums, res, d
         texture = texture.swapaxes(0, 1)[:, ::-1, :]
     else:
         # obj_path = '/data1/hezijian/Thuman2.1_GPS/0000.obj'
-        obj_path = '/data1/hezijian/Thuman2.1/THuman2.0_Smpl_X_Paras/%s/mesh_smplx.obj' % data_id
-
+        #obj_path = '/data1/hezijian/Thuman2.1/THuman2.0_Smpl_X_Paras/%s/mesh_smplx.obj' % data_id
+        obj_path = os.path.join(data_path, 'THuman2.0_Smpl_X_Paras', data_id, 'mesh_smplx.obj')
     obj = t3.readobj(obj_path, scale=1)
 
     # height normalization
