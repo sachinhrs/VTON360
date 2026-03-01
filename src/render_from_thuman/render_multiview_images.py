@@ -315,6 +315,12 @@ if __name__ == '__main__':
     thuman_list = sorted(os.listdir(os.path.join(thuman_root, phase)))
     thuman_list = thuman_list[512:513]
     save_path = os.path.join(save_root, phase)
+
+    existing = set(os.listdir(save_path)) if os.path.exists(save_path) else set()
+    print(f"Existing: {existing}")
+    thuman_list = [d for d in thuman_list if d not in existing]
+    print(f"To render: {thuman_list}")
+    
     seed_value = np.random.randint(1,1000)
     for data_id in tqdm(thuman_list):
         render_data(renderer, thuman_root, phase, data_id, save_path, cam_nums, res, dis=scene_radius, is_thuman=True, seed_value=seed_value)
