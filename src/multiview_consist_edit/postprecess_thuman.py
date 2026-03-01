@@ -33,6 +33,9 @@ def load_label_json(json_file):
     return mask_image
 
 def post_process(img1,img2,parse,new_parse,label_mask=None):
+    EXPECTED_W, EXPECTED_H = 576, 768
+    if img2.size != (EXPECTED_W, EXPECTED_H):
+        img2 = img2.resize((EXPECTED_W, EXPECTED_H), Image.LANCZOS)
     parse_array = np.array(parse)
     parse_head = (parse_array == 1) + \
                     (parse_array == 2) + \
@@ -141,7 +144,7 @@ if __name__ == '__main__':
     output_root = args.output_root
     # img2_root = 'output/image_output_tryon_1025_22000_test_multi_3_all2_mvg_back/'
     # img2_root = 'image_output_tryon_1015_60000_test_multi_3_all2_mvg'
-    dataset_root = '/GPUFS/sysu_gbli2_1/hzj/save_render_data_yw/all'
+    dataset_root = '/content/drive/MyDrive/VTON_Output/THuman_Output/all'
     print(img2_root, output_root)
     # output_root = 'test_thuman_mvg_post'
 
