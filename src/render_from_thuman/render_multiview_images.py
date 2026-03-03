@@ -10,6 +10,9 @@ import pickle
 import json
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--data_id',    type=str, required=True,  help='Subject ID e.g. 0001')
+args = parser.parse_args()
 
 def extr2tf_mat(extr):
     """
@@ -313,9 +316,8 @@ if __name__ == '__main__':
     # for phase in ['train', 'val']:
     phase = 'all'
     thuman_list = sorted(os.listdir(os.path.join(thuman_root, phase)))
-    thuman_list = thuman_list[512:513]
+    thuman_list = [args.subject]
     save_path = os.path.join(save_root, phase)
-
     existing = set(os.listdir(save_path)) if os.path.exists(save_path) else set()
     print(f"Existing: {existing}")
     thuman_list = [d for d in thuman_list if d not in existing]
