@@ -11,6 +11,18 @@ from torchvision import transforms
 from torchvision.transforms.functional import to_pil_image
 import apply_net
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--subject', type=str, default=None,
+                    help='Name of a single subfolder to process (e.g. 0001). If not set, processes all.')
+parser.add_argument('--root', type=str, default='/PATH/TO/THUMAN',
+                    help='Root path to the THuman dataset.')
+args = parser.parse_args()
+
+root = args.root
+
+
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 parsing_model = Parsing(0)
@@ -88,7 +100,7 @@ def get_agnostic_mask_all(human_img_orig, is_checked_crop=True):
 
     human_img_arg = _apply_exif_orientation(human_img.resize((384, 512)))
     human_img_arg = convert_PIL_to_numpy(human_img_arg, format="BGR")
-    args = apply_net.create_argument_parser().parse_args(('show', '...yaml', '...pkl', 'dp_segm', '-v', '--opts', 'MODEL.DEVICE', 'cuda'))
+    args = apply_net.create_argument_parser().parse_args(('show', 'src/render_from_thuman/configs/densepose_rcnn_R_50_FPN_s1x.yaml', 'src/render_from_thuman/ckpt/densepose/model_final_162be9.pkl', 'dp_segm', '-v', '--opts', 'MODEL.DEVICE', 'cuda'))
     pose_img = args.func(args, human_img_arg)
     pose_img = Image.fromarray(pose_img[:, :, ::-1])
 
@@ -107,10 +119,13 @@ def get_agnostic_mask_all(human_img_orig, is_checked_crop=True):
 
 # pose_img.save('3.jpg')
 
-root = '/PATH/TO/THUMAN'
+root = args.root
 
-sub_folder_list = os.listdir(root)
-sub_folder_list = sorted(sub_folder_list)
+if args.subject:
+    sub_folder_list = [args.subject]
+else:
+    sub_folder_list = sorted([f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))])
+            
 f = open('wrong_ids.txt','w')
 
 for sub_folder in sub_folder_list:
@@ -121,8 +136,8 @@ for sub_folder in sub_folder_list:
     pose_sub_folder_path = os.path.join(root, sub_folder, 'pose')
     if not os.path.exists(parse_sub_folder_path):
         os.makedirs(parse_sub_folder_path)
-    if not os.path.exists(agnostic_sub_folder_path):
-        os.makedirs(agnostic_sub_folder_path)
+    #if not os.path.exists(agnostic_sub_folder_path):
+        #os.makedirs(agnostic_sub_folder_path)
     if not os.path.exists(pose_sub_folder_path):
         os.makedirs(pose_sub_folder_path)
     print(sub_folder)
