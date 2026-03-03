@@ -119,6 +119,16 @@ for sub_folder in sub_folder_list:
     parse_sub_folder_path = os.path.join(root, sub_folder, 'parse2')
     #agnostic_sub_folder_path = os.path.join(root, sub_folder, 'agnostic')
     pose_sub_folder_path = os.path.join(root, sub_folder, 'pose')
+    if not os.path.exists(parse_sub_folder_path):
+        os.makedirs(parse_sub_folder_path)
+    if not os.path.exists(agnostic_sub_folder_path):
+        os.makedirs(agnostic_sub_folder_path)
+    if not os.path.exists(pose_sub_folder_path):
+        os.makedirs(pose_sub_folder_path)
+    print(sub_folder)
+    img_names = sorted(os.listdir(sub_folder_path))
+    img_names = img_names[:80]
+
             
     for category in MASK_CATEGORIES:
         agnostic_cat_path = os.path.join(root, sub_folder, f'agnostic_{category}')
