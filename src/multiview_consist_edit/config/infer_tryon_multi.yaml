@@ -43,6 +43,10 @@ infer_data:
   is_train: false
   mode: 'pair'
   output_front: true
+  Then add the default in your YAML under infer_data::
+  mask_category: upper_body
+
+  
 
 fusion_blocks: "full"
 image_finetune: true
