@@ -61,6 +61,40 @@ def get_agnostic_mask(human_img_orig, is_checked_crop=True):
 
     return mask_gray, model_parse, pose_img
 
+
+MASK_CATEGORIES = ["upper_body", "dresses", "lower_body"]
+
+def get_agnostic_mask_all(human_img_orig, is_checked_crop=True):
+    openpose_model.preprocessor.body_estimation.model.to(device)
+    human_img_orig = human_img_orig.convert("RGB")
+    if is_checked_crop:
+        human_img_orig = human_img_orig.resize((1024, 1024))
+        original_width, original_height = human_img_orig.size
+        crop_amount = (original_width - 768) // 2
+        human_img = human_img_orig.crop((crop_amount, 0, original_width - crop_amount, original_height))
+    else:
+        human_img = human_img_orig.resize((768, 1024))
+
+    keypoints = openpose_model(human_img.resize((384, 512)))
+    model_parse, _ = parsing_model(human_img.resize((384, 512)))
+
+    masks = {}
+    for category in MASK_CATEGORIES:
+        mask, mask_gray = get_mask_location('hd', category, model_parse, keypoints)
+        mask = mask.resize((768, 1024))
+        mask_gray = (1 - transforms.ToTensor()(mask)) * tensor_transfrom(human_img)
+        mask_gray = to_pil_image((mask_gray + 1.0) / 2.0)
+        masks[category] = mask_gray
+
+    human_img_arg = _apply_exif_orientation(human_img.resize((384, 512)))
+    human_img_arg = convert_PIL_to_numpy(human_img_arg, format="BGR")
+    args = apply_net.create_argument_parser().parse_args(('show', '...yaml', '...pkl', 'dp_segm', '-v', '--opts', 'MODEL.DEVICE', 'cuda'))
+    pose_img = args.func(args, human_img_arg)
+    pose_img = Image.fromarray(pose_img[:, :, ::-1])
+
+    return masks, model_parse, pose_img
+
+
 # human_img_orig = Image.open('gradio_demo/example/human/4_hr.jpg')
 # # human_img_orig = Image.open('gradio_demo/example/human/00035_00.jpg')
 # garm_img = Image.open('gradio_demo/example/cloth/09163_00.jpg')
@@ -78,6 +112,37 @@ root = '/PATH/TO/THUMAN'
 sub_folder_list = os.listdir(root)
 sub_folder_list = sorted(sub_folder_list)
 f = open('wrong_ids.txt','w')
+
+for sub_folder in sub_folder_list:
+            
+    sub_folder_path = os.path.join(root, sub_folder, 'images')
+    parse_sub_folder_path = os.path.join(root, sub_folder, 'parse2')
+    #agnostic_sub_folder_path = os.path.join(root, sub_folder, 'agnostic')
+    pose_sub_folder_path = os.path.join(root, sub_folder, 'pose')
+            
+    for category in MASK_CATEGORIES:
+        agnostic_cat_path = os.path.join(root, sub_folder, f'agnostic_{category}')
+        os.makedirs(agnostic_cat_path, exist_ok=True)
+
+    for img_name in img_names:
+        img_path = os.path.join(sub_folder_path, img_name)
+        human_img_orig = Image.open(img_path)
+        try:
+            masks, model_parse, pose_img = get_agnostic_mask_all(human_img_orig)
+
+            for category, mask_gray in masks.items():
+                save_path = os.path.join(root, sub_folder, f'agnostic_{category}', img_name)
+                mask_gray.save(save_path)
+
+            model_parse.save(os.path.join(root, sub_folder, 'parse2', img_name.replace('jpg', 'png')))
+            pose_img.save(os.path.join(root, sub_folder, 'pose', img_name))
+        except Exception as e:
+            print('wrong', img_path, e)
+            f.write(img_path + '\n')
+
+
+'''
+
 
 for sub_folder in sub_folder_list:
     sub_folder_path = os.path.join(root, sub_folder, 'images')
@@ -113,3 +178,4 @@ for sub_folder in sub_folder_list:
             print('wrong',img_path)
             f.write(img_path+'\n')
             f.flush()
+'''
