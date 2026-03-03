@@ -26,7 +26,15 @@ from data.Thuman2_multi import Thuman2_Dataset, collate_fn
 from data.MVHumanNet_multi import MVHumanNet_Dataset
 from models.hack_unet2d import Hack_UNet2DConditionModel as UNet2DConditionModel
 #config = OmegaConf.load('config/infer_tryon_multi.yaml')
+import sys
+
 config = OmegaConf.load('VTON360/src/multiview_consist_edit/config/infer_tryon_multi.yaml')
+# merge any key=value overrides from command line
+cli_overrides = OmegaConf.from_dotlist([s for s in sys.argv[1:] if '=' in s])
+config = OmegaConf.merge(config, cli_overrides)
+
+
+#config = OmegaConf.load('VTON360/src/multiview_consist_edit/config/infer_tryon_multi.yaml')
 
 # seed 
 seed = config.seed
