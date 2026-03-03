@@ -27,11 +27,12 @@ def crop_image(human_img_orig):
 
 class Thuman2_Dataset(Dataset):
     def __init__(
-        self, dataroot, sample_size=(512,384), is_train=True, mode='pair', clip_model_path='', multi_length=8, output_front=True,
+        self, dataroot, sample_size=(512,384), is_train=True, mode='pair', clip_model_path='', multi_length=8, output_front=True,mask_category='upper_body'
     ):
         c_names_front = []
         c_names_back = []
-
+        self.output_front = output_front
+        self.mask_category = mask_category 
         self.data_ids = []
         self.dataroot = os.path.join(dataroot, 'all')
         self.cloth_root = os.path.join(dataroot, 'cloth')
@@ -117,7 +118,7 @@ class Thuman2_Dataset(Dataset):
             cloth_name_back = os.path.join(self.cloth_root, '%s_front.jpg' % data_id)
             cloth_name_front =  os.path.join(self.cloth_root, '%s_back.jpg' % data_id)
 
-        images_root = os.path.join(self.dataroot, data_id, 'agnostic') # need only val
+        images_root = os.path.join(self.dataroot, data_id, f'agnostic_{self.mask_category}')
         images = sorted(os.listdir(images_root))
 
         # cloth_name_back = '0001_front.jpg'
@@ -176,7 +177,7 @@ class Thuman2_Dataset(Dataset):
             pixel_values = Image.open(os.path.join(self.dataroot, img_name))
             pixel_values_pose = Image.open(os.path.join(self.dataroot, img_name).replace('images', 'normals'))
             # parse_lip = Image.open(os.path.join(parse_lip_dir, img_name))
-            pixel_values_agnostic = Image.open(os.path.join(self.dataroot, img_name).replace('images', 'agnostic'))
+            pixel_values_agnostic = Image.open(os.path.join(self.dataroot, img_name).replace('images', f'agnostic_{self.mask_category}'))
             parm_matrix = np.load(os.path.join(self.dataroot, img_name[:4],'parm', img_name[-7:-4]+'_extrinsic.npy'))
             pixel_values = crop_image(pixel_values)
             pixel_values_pose = crop_image(pixel_values_pose)
