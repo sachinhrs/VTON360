@@ -44,12 +44,12 @@ torch.cuda.manual_seed(seed)
 
 # dataset
 infer_data_config = config.infer_data
-if 'mvhumannet' in infer_data_config['dataroot']:
-    infer_dataset = MVHumanNet_Dataset(**infer_data_config)
-    print('using mvhumannet')
-else:
-    infer_dataset = Thuman2_Dataset(**infer_data_config)
-    print('using Thuman2_Dataset')
+i#f 'mvhumannet' in infer_data_config['dataroot']:
+#    infer_dataset = MVHumanNet_Dataset(**infer_data_config)
+#    print('using mvhumannet')
+#else:
+infer_dataset = Thuman2_Dataset(**infer_data_config)
+print('using Thuman2_Dataset')
 
 batch_size = config.batch_size
 # multi_length = 16
