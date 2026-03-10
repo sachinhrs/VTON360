@@ -317,7 +317,7 @@ if __name__ == '__main__':
     # for phase in ['train', 'val']:
     phase = 'all'
     thuman_list = sorted(os.listdir(os.path.join(thuman_root, phase)))
-    thuman_list = [args.subject]
+    thuman_list = [args.data_id]
     save_path = os.path.join(save_root, phase)
     existing = set(os.listdir(save_path)) if os.path.exists(save_path) else set()
     print(f"Existing: {existing}")
