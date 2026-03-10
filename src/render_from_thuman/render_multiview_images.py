@@ -8,6 +8,7 @@ import os
 import cv2
 import pickle
 import json
+import argparse
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 parser = argparse.ArgumentParser()
