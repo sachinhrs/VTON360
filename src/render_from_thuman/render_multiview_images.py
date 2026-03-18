@@ -21,7 +21,6 @@ import taichi_three as t3
 
 def load_sith_obj_with_colors(path, scale=1.0):
     obj = t3.readobj(path, scale=scale)
-
     colors = []
     with open(path, "r") as f:
         for line in f:
@@ -31,8 +30,12 @@ def load_sith_obj_with_colors(path, scale=1.0):
             if len(parts) >= 7:
                 r, g, b = map(float, parts[4:7])
                 colors.append([r, g, b])
-    colors = np.array(colors, dtype=np.float32) if colors else None
+    if colors:
+        colors = np.clip(np.array(colors, dtype=np.float32), 0.0, 1.0)
+    else:
+        colors = None
     return obj, colors
+
 
 
 def extr2tf_mat(extr):
@@ -176,6 +179,26 @@ class StaticRenderer:
     def camera_light(self):
         camera = t3.Camera(res=(1024, 1024))
         self.scene.add_camera(camera)
+    
+        camera_hr = t3.Camera(res=(2048, 2048))
+        self.scene.add_camera(camera_hr)
+    
+        # Softer lighting
+        self.scene.ambient_light([0.6, 0.6, 0.6])
+        light_dir = np.array([0, 0, 1])
+        light_list = []
+        for l in range(6):
+            rotate = np.matmul(rotationX(math.radians(np.random.uniform(-30, 30))),
+                               rotationY(math.radians(360 // 6 * l)))
+            dir = [*np.matmul(rotate, light_dir)]
+            light = t3.Light(dir, color=[0.3, 0.3, 0.3])  # dimmer lights
+            light_list.append(light)
+        lights = t3.Lights(light_list)
+        self.scene.add_lights(lights)
+        return
+        
+        camera = t3.Camera(res=(1024, 1024))
+        self.scene.add_camera(camera)
 
         camera_hr = t3.Camera(res=(2048, 2048))
         self.scene.add_camera(camera_hr)
@@ -199,8 +222,12 @@ def render_data(renderer, data_path, phase, data_id, save_path, cam_nums, res, d
         texture_path = data_path
         img_path = os.path.join(texture_path, phase, data_id, 'material0.jpeg')
         texture = cv2.imread(img_path)[:, :, ::-1]
-        texture = np.ascontiguousarray(texture)
-        texture = texture.swapaxes(0, 1)[:, ::-1, :]
+        
+        if texture is None:
+            texture = None
+        else:
+            texture = np.ascontiguousarray(texture)
+            texture = texture.swapaxes(0, 1)[:, ::-1, :]
 
         # main mesh: geometry + vertex colors
         obj, colors = load_sith_obj_with_colors(obj_path, scale=1.0)
