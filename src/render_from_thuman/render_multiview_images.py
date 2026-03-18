@@ -8,8 +8,12 @@ import os
 import cv2
 import pickle
 import json
+import argparse
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--data_id',    type=str, required=True,  help='Subject ID e.g. 0001')
+args = parser.parse_args()
 
 def extr2tf_mat(extr):
     """
@@ -180,8 +184,8 @@ def render_data(renderer, data_path, phase, data_id, save_path, cam_nums, res, d
         texture = texture.swapaxes(0, 1)[:, ::-1, :]
     else:
         # obj_path = '/data1/hezijian/Thuman2.1_GPS/0000.obj'
-        obj_path = '/data1/hezijian/Thuman2.1/THuman2.0_Smpl_X_Paras/%s/mesh_smplx.obj' % data_id
-
+        #obj_path = '/data1/hezijian/Thuman2.1/THuman2.0_Smpl_X_Paras/%s/mesh_smplx.obj' % data_id
+        obj_path = os.path.join(data_path, 'THuman2.0_Smpl_X_Paras', data_id, 'mesh_smplx.obj')
     obj = t3.readobj(obj_path, scale=1)
 
     # height normalization
@@ -219,14 +223,20 @@ def render_data(renderer, data_path, phase, data_id, save_path, cam_nums, res, d
         else:
             renderer.add_model(obj)
 
+    angle_base = 0.0  # default if pkl is missing
+    
     if is_thuman:
         # thuman needs a normalization of orientation
         smpl_path = os.path.join(data_path, 'THuman2.0_Smpl_X_Paras', data_id, 'smplx_param.pkl')
-        with open(smpl_path, 'rb') as f:
-            smpl_para = pickle.load(f)
+        try:
+            with open(smpl_path, 'rb') as f:
+                smpl_para = pickle.load(f)
+    
+            y_orient = smpl_para['global_orient'][0][1]
+            angle_base = (y_orient * 180.0 / np.pi)
+        except FileNotFoundError:
+            print(f"[warn] smplx_param.pkl not found for {data_id}, using angle_base=0.0")
 
-        y_orient = smpl_para['global_orient'][0][1]  
-        angle_base = (y_orient*180.0/np.pi)
 
     # nyw note: generate one instance of thuman in this loop
     extrs, intrs, depths, imgs, masks, normals = [], [], [], [], [], []
@@ -313,8 +323,13 @@ if __name__ == '__main__':
     # for phase in ['train', 'val']:
     phase = 'all'
     thuman_list = sorted(os.listdir(os.path.join(thuman_root, phase)))
-    thuman_list = thuman_list[512:513]
+    thuman_list = [args.data_id]
     save_path = os.path.join(save_root, phase)
+    existing = set(os.listdir(save_path)) if os.path.exists(save_path) else set()
+    print(f"Existing: {existing}")
+    thuman_list = [d for d in thuman_list if d not in existing]
+    print(f"To render: {thuman_list}")
+    
     seed_value = np.random.randint(1,1000)
     for data_id in tqdm(thuman_list):
         render_data(renderer, thuman_root, phase, data_id, save_path, cam_nums, res, dis=scene_radius, is_thuman=True, seed_value=seed_value)
