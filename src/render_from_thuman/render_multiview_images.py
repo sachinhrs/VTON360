@@ -221,13 +221,12 @@ def render_data(renderer, data_path, phase, data_id, save_path, cam_nums, res, d
         obj_path = os.path.join(data_path, phase, data_id, f'{data_id}.obj')
         texture_path = data_path
         img_path = os.path.join(texture_path, phase, data_id, 'material0.jpeg')
-        texture = cv2.imread(img_path)[:, :, ::-1]
-        
-        if texture is None:
-            texture = None
-        else:
+        if os.path.isfile(img_path):
+            texture = cv2.imread(img_path)[:, :, ::-1]
             texture = np.ascontiguousarray(texture)
             texture = texture.swapaxes(0, 1)[:, ::-1, :]
+        else:
+            texture = None
 
         # main mesh: geometry + vertex colors
         obj, colors = load_sith_obj_with_colors(obj_path, scale=1.0)
