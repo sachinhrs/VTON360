@@ -177,6 +177,7 @@ class StaticRenderer:
             model.type[None] = model.COLOR
     
     def camera_light(self):
+        '''
         camera = t3.Camera(res=(1024, 1024))
         self.scene.add_camera(camera)
     
@@ -184,7 +185,7 @@ class StaticRenderer:
         self.scene.add_camera(camera_hr)
     
         # Softer lighting
-        self.scene.ambient_light([0.6, 0.6, 0.6])
+        #self.scene.ambient_light([0.6, 0.6, 0.6])
         light_dir = np.array([0, 0, 1])
         light_list = []
         for l in range(6):
@@ -196,7 +197,7 @@ class StaticRenderer:
         lights = t3.Lights(light_list)
         self.scene.add_lights(lights)
         return
-        
+        '''
         camera = t3.Camera(res=(1024, 1024))
         self.scene.add_camera(camera)
 
