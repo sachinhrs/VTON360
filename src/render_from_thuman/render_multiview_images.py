@@ -167,24 +167,19 @@ class StaticRenderer:
 
 def render_data(renderer, data_path, phase, data_id, save_path, cam_nums, res, dis=1.0, is_thuman=False, is_smpl_model=False, seed_value=0):
     np.random.seed(seed_value)
+    
     if not is_smpl_model:
         obj_path = os.path.join(data_path, phase, data_id, '%s.obj' % data_id)
         texture_path = data_path
         img_path = os.path.join(texture_path, phase, data_id, 'material0.jpeg')
-        texture = cv2.imread(img_path)[:, :, ::-1]
-
-        # ################ nyw add equalizeHist for texture ################
-        # # comment out the following lines to disable equalizeHist for texture
-        # texture = cv2.cvtColor(texture, cv2.COLOR_RGB2HSV)
-        # texture[:, :, 2] = cv2.equalizeHist(texture[:, :, 2]) * 0.85 # scale down the brightness by 0.85
-        # texture = cv2.cvtColor(texture, cv2.COLOR_HSV2RGB)
-        # ################ nyw add equalizeHist for texture ################
-    
-        texture = np.ascontiguousarray(texture)
-        texture = texture.swapaxes(0, 1)[:, ::-1, :]
+        tex_img = cv2.imread(img_path)
+        if tex_img is not None:
+            texture = tex_img[:, :, ::-1]
+            texture = np.ascontiguousarray(texture)
+            texture = texture.swapaxes(0, 1)[:, ::-1, :]
+        else:
+            texture = None
     else:
-        # obj_path = '/data1/hezijian/Thuman2.1_GPS/0000.obj'
-        #obj_path = '/data1/hezijian/Thuman2.1/THuman2.0_Smpl_X_Paras/%s/mesh_smplx.obj' % data_id
         obj_path = os.path.join(data_path, 'THuman2.0_Smpl_X_Paras', data_id, 'mesh_smplx.obj')
     obj = t3.readobj(obj_path, scale=1)
 
