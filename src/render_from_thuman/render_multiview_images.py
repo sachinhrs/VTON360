@@ -1,4 +1,5 @@
 import taichi_three as t3
+import taichi as ti
 import numpy as np
 from taichi_three.transform import *
 import math
@@ -14,6 +15,25 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_id',    type=str, required=True,  help='Subject ID e.g. 0001')
 args = parser.parse_args()
+
+import numpy as np
+import taichi_three as t3
+
+def load_sith_obj_with_colors(path, scale=1.0):
+    obj = t3.readobj(path, scale=scale)
+
+    colors = []
+    with open(path, "r") as f:
+        for line in f:
+            if not line.startswith("v "):
+                continue
+            parts = line.strip().split()
+            if len(parts) >= 7:
+                r, g, b = map(float, parts[4:7])
+                colors.append([r, g, b])
+    colors = np.array(colors, dtype=np.float32) if colors else None
+    return obj, colors
+
 
 def extr2tf_mat(extr):
     """
@@ -135,16 +155,23 @@ class StaticRenderer:
             self.change_all()
             self.camera_light()
     
-    def add_model(self, obj, tex=None):
+    def add_model(self, obj, tex=None, colors=None):
         self.check_update(obj)
         model = t3.StaticModel(self.N, obj=obj, tex=tex)
+        if colors is not None:
+            model.vc.from_numpy(colors.astype(np.float32))
+            model.type[None] = model.COLOR  # per-vertex color mode[web:120][web:267]
         self.scene.add_model(model)
     
-    def modify_model(self, index, obj, tex=None):
+    def modify_model(self, index, obj, tex=None, colors=None):
         self.check_update(obj)
-        self.scene.models[index].init_obj = obj
-        self.scene.models[index].init_tex = tex
-        self.scene.models[index]._init()
+        model = self.scene.models[index]
+        model.init_obj = obj
+        model.init_tex = tex
+        model._init()
+        if colors is not None:
+            model.vc.from_numpy(colors.astype(np.float32))
+            model.type[None] = model.COLOR
     
     def camera_light(self):
         camera = t3.Camera(res=(1024, 1024))
@@ -168,25 +195,20 @@ class StaticRenderer:
 def render_data(renderer, data_path, phase, data_id, save_path, cam_nums, res, dis=1.0, is_thuman=False, is_smpl_model=False, seed_value=0):
     np.random.seed(seed_value)
     if not is_smpl_model:
-        obj_path = os.path.join(data_path, phase, data_id, '%s.obj' % data_id)
+        obj_path = os.path.join(data_path, phase, data_id, f'{data_id}.obj')
         texture_path = data_path
         img_path = os.path.join(texture_path, phase, data_id, 'material0.jpeg')
         texture = cv2.imread(img_path)[:, :, ::-1]
-
-        # ################ nyw add equalizeHist for texture ################
-        # # comment out the following lines to disable equalizeHist for texture
-        # texture = cv2.cvtColor(texture, cv2.COLOR_RGB2HSV)
-        # texture[:, :, 2] = cv2.equalizeHist(texture[:, :, 2]) * 0.85 # scale down the brightness by 0.85
-        # texture = cv2.cvtColor(texture, cv2.COLOR_HSV2RGB)
-        # ################ nyw add equalizeHist for texture ################
-    
         texture = np.ascontiguousarray(texture)
         texture = texture.swapaxes(0, 1)[:, ::-1, :]
+
+        # main mesh: geometry + vertex colors
+        obj, colors = load_sith_obj_with_colors(obj_path, scale=1.0)
     else:
-        # obj_path = '/data1/hezijian/Thuman2.1_GPS/0000.obj'
-        #obj_path = '/data1/hezijian/Thuman2.1/THuman2.0_Smpl_X_Paras/%s/mesh_smplx.obj' % data_id
         obj_path = os.path.join(data_path, 'THuman2.0_Smpl_X_Paras', data_id, 'mesh_smplx.obj')
-    obj = t3.readobj(obj_path, scale=1)
+        obj = t3.readobj(obj_path, scale=1.0)
+        colors = None
+    
 
     # height normalization
     vy_max = np.max(obj['vi'][:, 1])
@@ -211,17 +233,19 @@ def render_data(renderer, data_path, phase, data_id, save_path, cam_nums, res, d
         move_range = 0.01
     obj['vi'][:, 0] += np.random.uniform(-move_range, move_range, 1)
     obj['vi'][:, 2] += np.random.uniform(-move_range, move_range, 1)
-
+    
     if len(renderer.scene.models) >= 1:
         if not is_smpl_model:
-            renderer.modify_model(0, obj, texture)
+            renderer.modify_model(0, obj, texture, colors=colors)
         else:
             renderer.modify_model(0, obj)
     else:
         if not is_smpl_model:
-            renderer.add_model(obj, texture)
+            renderer.add_model(obj, texture, colors=colors)
         else:
             renderer.add_model(obj)
+    
+
 
     angle_base = 0.0  # default if pkl is missing
     
