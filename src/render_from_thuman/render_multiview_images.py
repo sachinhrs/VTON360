@@ -223,14 +223,20 @@ def render_data(renderer, data_path, phase, data_id, save_path, cam_nums, res, d
         else:
             renderer.add_model(obj)
 
+    angle_base = 0.0  # default if pkl is missing
+    
     if is_thuman:
         # thuman needs a normalization of orientation
         smpl_path = os.path.join(data_path, 'THuman2.0_Smpl_X_Paras', data_id, 'smplx_param.pkl')
-        with open(smpl_path, 'rb') as f:
-            smpl_para = pickle.load(f)
+        try:
+            with open(smpl_path, 'rb') as f:
+                smpl_para = pickle.load(f)
+    
+            y_orient = smpl_para['global_orient'][0][1]
+            angle_base = (y_orient * 180.0 / np.pi)
+        except FileNotFoundError:
+            print(f"[warn] smplx_param.pkl not found for {data_id}, using angle_base=0.0")
 
-        y_orient = smpl_para['global_orient'][0][1]  
-        angle_base = (y_orient*180.0/np.pi)
 
     # nyw note: generate one instance of thuman in this loop
     extrs, intrs, depths, imgs, masks, normals = [], [], [], [], [], []
