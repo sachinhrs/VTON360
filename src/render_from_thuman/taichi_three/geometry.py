@@ -72,18 +72,12 @@ def render_triangle(model, camera, face, lights):
                 continue
             
             coor = (ta * w_A + tb * w_B + tc * w_C)
-                        # FORCE vertex colors for testing:
-
-            # TEMP: always show vertex colors if present, ignore texture and lighting
-            camera.img[X] = (ca * w_A + cb * w_B + cc * w_C)
-
-            #if model.type[None] == 1:
-                #camera.img[X] = (ca * w_A + cb * w_B + cc * w_C)
-            #elif model.type[None] == 2:
-                #camera.img[X] = color * (ca * w_A + cb * w_B + cc * w_C)
-            #else:    
-                #camera.img[X] = color * model.texSample(coor)
-                
+            if model.type[None] == 1:
+                camera.img[X] = (ca * w_A + cb * w_B + cc * w_C)
+            elif model.type[None] == 2:
+                camera.img[X] = color * (ca * w_A + cb * w_B + cc * w_C)
+            else:    
+                camera.img[X] = color * model.texSample(coor)
             camera.mask[X] = ti.Vector([1.0, 1.0, 1.0], ti.f32)
             camera.normal_map[X] = -normal / 2.0 + 0.5
             # camera.normal_map[X] = ts.vec3(shading / 2.0 + 0.5)
