@@ -5,6 +5,7 @@ import taichi.math as ts
 
 @ti.func
 def render_triangle(model, camera, face, lights):
+    # VERTEX_COLOR_PATCH
     scene = model.scene
     _1 = ti.static(min(1, model.faces.m - 1))
     _2 = ti.static(min(2, model.faces.m - 1))
