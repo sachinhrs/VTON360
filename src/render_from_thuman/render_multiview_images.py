@@ -161,10 +161,31 @@ class StaticRenderer:
     def add_model(self, obj, tex=None, colors=None):
         self.check_update(obj)
         model = t3.StaticModel(self.N, obj=obj, tex=tex)
+    
         if colors is not None:
-            model.vc.from_numpy(colors.astype(np.float32))
-            model.type[None] = model.COLOR  # per-vertex color mode[web:120][web:267]
+            import numpy as np
+            colors_np = np.asarray(colors, dtype=np.float32)
+            print("colors shape:", colors_np.shape, colors_np.dtype, flush=True)
+            print("model.vc.to_numpy shape:", model.vc.to_numpy().shape, flush=True)
+    
+            # Get the vertex count from model.vc itself
+            num_v = model.vc.to_numpy().shape[0]
+    
+            # Force layout: (num_v, 3), clamp or pad to match exactly
+            colors_np = colors_np.reshape(-1, 3)
+            if colors_np.shape[0] >= num_v:
+                colors_np = colors_np[:num_v]
+            else:
+                pad = np.ones((num_v - colors_np.shape[0], 3), dtype=np.float32)
+                colors_np = np.concatenate([colors_np, pad], axis=0)
+    
+            print("colors_np after match:", colors_np.shape, colors_np.dtype, flush=True)
+    
+            model.vc.from_numpy(colors_np.astype(np.float32))
+            model.type[None] = model.COLOR
+    
         self.scene.add_model(model)
+
     
     def modify_model(self, index, obj, tex=None, colors=None):
         self.check_update(obj)
